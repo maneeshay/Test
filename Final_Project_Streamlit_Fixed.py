@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
@@ -64,46 +63,46 @@ st.subheader("Debugging: SHAP Values Shape and Type")
 st.write(f"SHAP values type: {type(shap_values)}")
 st.write(f"SHAP values shape: {np.array(shap_values).shape}")
 
-# Display a slice of SHAP values correctly
+# Reshape SHAP values to handle 3D array for binary classification
 try:
-    if isinstance(shap_values, list) and len(shap_values) > 1:
-        # For multi-class classification: Display SHAP values for the positive class
-        st.write("SHAP values (positive class - class 1):")
-        shap_values_class1 = shap_values[1]  # Extract SHAP values for positive class
-        st.write("First 5 SHAP rows (class 1):")
+    if isinstance(shap_values, list):
+        # For multi-class classification, display SHAP values for the positive class
+        st.write("SHAP values for positive class (class 1):")
+        shap_values_class1 = shap_values[1]  # Extract SHAP values for class 1
         st.write(pd.DataFrame(shap_values_class1[:5], columns=X_test.columns))
     else:
-        # For binary classification
-        st.write("SHAP values (binary classification):")
-        st.write("First 5 SHAP rows:")
-        st.write(pd.DataFrame(shap_values[:5], columns=X_test.columns))
+        # For binary classification, handle 3D array
+        shap_values_2d = shap_values[:, :, 1] if shap_values.ndim == 3 else shap_values
+        st.write("First 5 SHAP rows for binary classification:")
+        st.write(pd.DataFrame(shap_values_2d[:5], columns=X_test.columns))
 except Exception as e:
     st.error(f"Error displaying SHAP values: {e}")
 
-# Visualize SHAP values based on classification type
+# Visualize SHAP values
 try:
-    if isinstance(shap_values, list) and len(shap_values) > 1:
-        # For multi-class classification
-        st.write("Visualizing SHAP values for the positive class (1)")
+    if isinstance(shap_values, list):
+        # Visualize SHAP values for positive class
+        st.write("Visualizing SHAP values for the positive class (1):")
         fig, ax = plt.subplots()
         shap.summary_plot(shap_values[1], X_test, plot_type="bar", show=False)
         st.pyplot(fig)
-    elif isinstance(shap_values, np.ndarray):
-        # For binary classification
-        st.write("Visualizing SHAP values for binary classification")
-        fig, ax = plt.subplots()
-        shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
-        st.pyplot(fig)
     else:
-        st.error("Error in SHAP value shape. Ensure compatibility with the model and dataset.")
+        # Visualize binary classification SHAP values
+        st.write("Visualizing SHAP values for binary classification:")
+        fig, ax = plt.subplots()
+        shap.summary_plot(shap_values_2d, X_test, plot_type="bar", show=False)
+        st.pyplot(fig)
 except Exception as e:
     st.error(f"Error visualizing SHAP values: {e}")
 
-# Alternative Visualization: Beeswarm plot
+# Alternative SHAP Visualization: Beeswarm plot
 st.subheader("Alternative SHAP Visualization: Beeswarm Plot")
 try:
     fig, ax = plt.subplots()
-    shap.summary_plot(shap_values[1] if isinstance(shap_values, list) else shap_values, X_test, show=False)
+    if isinstance(shap_values, list):
+        shap.summary_plot(shap_values[1], X_test, show=False)
+    else:
+        shap.summary_plot(shap_values_2d, X_test, show=False)
     st.pyplot(fig)
 except Exception as e:
     st.error(f"Error displaying beeswarm plot: {e}")
