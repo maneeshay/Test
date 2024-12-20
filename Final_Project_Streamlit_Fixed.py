@@ -5,11 +5,10 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.metrics import classification_report, roc_auc_score, roc_curve, precision_recall_curve, auc, confusion_matrix
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
 import shap
-from lime import lime_tabular
 import io
 
 # Title and description
@@ -54,35 +53,25 @@ st.subheader("Model Performance")
 st.text("Classification Report:")
 st.text(classification_report(y_test, y_pred))
 
-# Feature importance
-# st.subheader("Feature Importance using SHAP")
-# explainer = shap.Explainer(model, X_test)
-# shap_values = explainer(X_test)
-# st.pyplot(shap.summary_plot(shap_values, X_test, plot_type="bar"))
-
 # SHAP Feature Importance for Classification
 st.subheader("Feature Importance using SHAP")
 
-# Use TreeExplainer for tree-based models like Random Forest
+# Use TreeExplainer for tree-based models
 explainer = shap.TreeExplainer(model)
-
-# Get SHAP values for all classes
 shap_values = explainer.shap_values(X_test)
 
-# Check if SHAP values and X_test shape match
-if len(shap_values) > 1:
+# Validate the shape of SHAP values and X_test
+if isinstance(shap_values, list) and len(shap_values) > 1:
     # Visualize SHAP values for the positive class (class 1)
     st.write("Visualizing SHAP values for the positive class (1)")
     fig, ax = plt.subplots()
     shap.summary_plot(shap_values[1], X_test, plot_type="bar", show=False)
     st.pyplot(fig)
-else:
-    # For binary classification, use single set of SHAP values
+elif isinstance(shap_values, np.ndarray):
+    # For binary classification with single set of SHAP values
     st.write("Visualizing SHAP values for binary classification")
     fig, ax = plt.subplots()
     shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
     st.pyplot(fig)
-
-
-
-
+else:
+    st.error("Error in SHAP value shape. Ensure compatibility with the model and dataset.")
