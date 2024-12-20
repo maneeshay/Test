@@ -51,6 +51,32 @@ st.subheader("Model Performance")
 st.text("Classification Report:")
 st.text(classification_report(y_test, y_pred))
 
+# Add prediction feature
+st.subheader("Make a Prediction")
+# Dynamically generate input fields for each feature
+user_input = {}
+for col in X.columns:
+    user_input[col] = st.number_input(f"Enter {col}:", value=float(X[col].mean()))
+
+# Convert user input into a DataFrame
+input_data = pd.DataFrame([user_input])
+st.write("User Input:")
+st.write(input_data)
+
+# Make prediction
+prediction = model.predict(input_data)[0]
+prediction_proba = model.predict_proba(input_data)
+
+st.subheader("Prediction Result")
+if prediction == 1:
+    st.write("The model predicts **Diabetes**.")
+else:
+    st.write("The model predicts **No Diabetes**.")
+
+st.write("Prediction Probabilities:")
+st.write(f"Probability of No Diabetes: {prediction_proba[0][0]:.2f}")
+st.write(f"Probability of Diabetes: {prediction_proba[0][1]:.2f}")
+
 # SHAP Feature Importance for Classification
 st.subheader("Feature Importance using SHAP")
 
