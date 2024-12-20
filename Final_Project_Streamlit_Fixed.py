@@ -64,11 +64,16 @@ st.write("User Input:")
 st.write(input_data)
 
 # Make prediction
-prediction = model.predict(input_data)[0]
 prediction_proba = model.predict_proba(input_data)
+prediction = model.predict(input_data)[0]
+
+# Add threshold adjustment
+st.subheader("Adjust Prediction Threshold")
+threshold = st.slider("Prediction Threshold (Default: 0.5):", 0.0, 1.0, 0.5)
+adjusted_prediction = (prediction_proba[0][1] >= threshold).astype(int)
 
 st.subheader("Prediction Result")
-if prediction == 1:
+if adjusted_prediction == 1:
     st.write("The model predicts **Diabetes**.")
 else:
     st.write("The model predicts **No Diabetes**.")
@@ -132,3 +137,12 @@ try:
     st.pyplot(fig)
 except Exception as e:
     st.error(f"Error displaying beeswarm plot: {e}")
+
+# SHAP explanation for the user input prediction
+st.subheader("SHAP Explanation for the Prediction")
+try:
+    shap_values_single = explainer.shap_values(input_data)
+    st.write("Force plot for this prediction (class 1):")
+    shap.force_plot(explainer.expected_value[1], shap_values_single[1], input_data, matplotlib=True)
+except Exception as e:
+    st.error(f"Error displaying SHAP force plot: {e}")
