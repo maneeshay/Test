@@ -59,25 +59,28 @@ st.subheader("Feature Importance using SHAP")
 explainer = shap.TreeExplainer(model)
 shap_values = explainer.shap_values(X_test)
 
-# Debugging: Verify SHAP values
-st.subheader("Debugging: SHAP Values")
-st.write("Raw SHAP values (check for non-zero importance):")
-st.write(shap_values)
+# Debugging: Check the structure of SHAP values
+st.subheader("Debugging: SHAP Values Shape and Type")
+st.write(f"SHAP values type: {type(shap_values)}")
+st.write(f"SHAP values shape: {np.array(shap_values).shape}")
 
-# Debugging: Verify test data
-st.subheader("Debugging: Test Dataset")
-st.write("X_test sample data:")
-st.write(X_test.head())
-
-# Validate and visualize SHAP values
+# Debugging: Display a slice of SHAP values
 if isinstance(shap_values, list) and len(shap_values) > 1:
-    # Visualize SHAP values for the positive class (class 1)
+    st.write("SHAP values (positive class - class 1):")
+    st.write(shap_values[1][:5])  # Display the first 5 rows of the positive class
+else:
+    st.write("SHAP values (binary classification):")
+    st.write(shap_values[:5])  # Display the first 5 rows
+
+# Visualize SHAP values based on classification type
+if isinstance(shap_values, list) and len(shap_values) > 1:
+    # For multi-class classification
     st.write("Visualizing SHAP values for the positive class (1)")
     fig, ax = plt.subplots()
     shap.summary_plot(shap_values[1], X_test, plot_type="bar", show=False)
     st.pyplot(fig)
 elif isinstance(shap_values, np.ndarray):
-    # For binary classification with single set of SHAP values
+    # For binary classification
     st.write("Visualizing SHAP values for binary classification")
     fig, ax = plt.subplots()
     shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
@@ -88,5 +91,5 @@ else:
 # Alternative Visualization: Beeswarm plot
 st.subheader("Alternative SHAP Visualization: Beeswarm Plot")
 fig, ax = plt.subplots()
-shap.summary_plot(shap_values, X_test, show=False)
+shap.summary_plot(shap_values[1] if isinstance(shap_values, list) else shap_values, X_test, show=False)
 st.pyplot(fig)
