@@ -55,7 +55,20 @@ st.text("Classification Report:")
 st.text(classification_report(y_test, y_pred))
 
 # Feature importance
+# st.subheader("Feature Importance using SHAP")
+# explainer = shap.Explainer(model, X_test)
+# shap_values = explainer(X_test)
+# st.pyplot(shap.summary_plot(shap_values, X_test, plot_type="bar"))
+
+# Feature importance
+# SHAP Feature Importance for Classification
 st.subheader("Feature Importance using SHAP")
-explainer = shap.Explainer(model, X_test)
-shap_values = explainer(X_test)
-st.pyplot(shap.summary_plot(shap_values, X_test, plot_type="bar"))
+explainer = shap.TreeExplainer(model)  # Use TreeExplainer for tree-based models
+shap_values = explainer.shap_values(X_test)  # Get SHAP values for all classes
+
+# Visualize SHAP values for the positive class (class 1)
+fig, ax = plt.subplots()
+shap.summary_plot(shap_values[1], X_test, plot_type="bar", show=False)  # Use SHAP values for class 1
+st.pyplot(fig)
+
+
