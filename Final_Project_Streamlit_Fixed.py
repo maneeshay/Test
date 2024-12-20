@@ -64,13 +64,18 @@ st.subheader("Debugging: SHAP Values Shape and Type")
 st.write(f"SHAP values type: {type(shap_values)}")
 st.write(f"SHAP values shape: {np.array(shap_values).shape}")
 
-# Debugging: Display a slice of SHAP values
+# Display a slice of SHAP values correctly
 if isinstance(shap_values, list) and len(shap_values) > 1:
+    # For multi-class classification: Display SHAP values for the positive class
     st.write("SHAP values (positive class - class 1):")
-    st.write(shap_values[1][:5])  # Display the first 5 rows of the positive class
+    shap_values_class1 = shap_values[1]  # Extract SHAP values for positive class
+    st.write("First 5 SHAP rows (class 1):")
+    st.write(pd.DataFrame(shap_values_class1[:5], columns=X_test.columns))
 else:
+    # For binary classification
     st.write("SHAP values (binary classification):")
-    st.write(shap_values[:5])  # Display the first 5 rows
+    st.write("First 5 SHAP rows:")
+    st.write(pd.DataFrame(shap_values[:5], columns=X_test.columns))
 
 # Visualize SHAP values based on classification type
 if isinstance(shap_values, list) and len(shap_values) > 1:
