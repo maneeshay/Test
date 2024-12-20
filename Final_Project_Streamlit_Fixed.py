@@ -60,15 +60,29 @@ st.text(classification_report(y_test, y_pred))
 # shap_values = explainer(X_test)
 # st.pyplot(shap.summary_plot(shap_values, X_test, plot_type="bar"))
 
-# Feature importance
 # SHAP Feature Importance for Classification
 st.subheader("Feature Importance using SHAP")
-explainer = shap.TreeExplainer(model)  # Use TreeExplainer for tree-based models
-shap_values = explainer.shap_values(X_test)  # Get SHAP values for all classes
 
-# Visualize SHAP values for the positive class (class 1)
-fig, ax = plt.subplots()
-shap.summary_plot(shap_values[1], X_test, plot_type="bar", show=False)  # Use SHAP values for class 1
-st.pyplot(fig)
+# Use TreeExplainer for tree-based models like Random Forest
+explainer = shap.TreeExplainer(model)
+
+# Get SHAP values for all classes
+shap_values = explainer.shap_values(X_test)
+
+# Check if SHAP values and X_test shape match
+if len(shap_values) > 1:
+    # Visualize SHAP values for the positive class (class 1)
+    st.write("Visualizing SHAP values for the positive class (1)")
+    fig, ax = plt.subplots()
+    shap.summary_plot(shap_values[1], X_test, plot_type="bar", show=False)
+    st.pyplot(fig)
+else:
+    # For binary classification, use single set of SHAP values
+    st.write("Visualizing SHAP values for binary classification")
+    fig, ax = plt.subplots()
+    shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
+    st.pyplot(fig)
+
+
 
 
