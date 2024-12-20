@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import os
@@ -60,7 +59,17 @@ st.subheader("Feature Importance using SHAP")
 explainer = shap.TreeExplainer(model)
 shap_values = explainer.shap_values(X_test)
 
-# Validate the shape of SHAP values and X_test
+# Debugging: Verify SHAP values
+st.subheader("Debugging: SHAP Values")
+st.write("Raw SHAP values (check for non-zero importance):")
+st.write(shap_values)
+
+# Debugging: Verify test data
+st.subheader("Debugging: Test Dataset")
+st.write("X_test sample data:")
+st.write(X_test.head())
+
+# Validate and visualize SHAP values
 if isinstance(shap_values, list) and len(shap_values) > 1:
     # Visualize SHAP values for the positive class (class 1)
     st.write("Visualizing SHAP values for the positive class (1)")
@@ -75,3 +84,9 @@ elif isinstance(shap_values, np.ndarray):
     st.pyplot(fig)
 else:
     st.error("Error in SHAP value shape. Ensure compatibility with the model and dataset.")
+
+# Alternative Visualization: Beeswarm plot
+st.subheader("Alternative SHAP Visualization: Beeswarm Plot")
+fig, ax = plt.subplots()
+shap.summary_plot(shap_values, X_test, show=False)
+st.pyplot(fig)
