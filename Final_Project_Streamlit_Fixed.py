@@ -65,36 +65,45 @@ st.write(f"SHAP values type: {type(shap_values)}")
 st.write(f"SHAP values shape: {np.array(shap_values).shape}")
 
 # Display a slice of SHAP values correctly
-if isinstance(shap_values, list) and len(shap_values) > 1:
-    # For multi-class classification: Display SHAP values for the positive class
-    st.write("SHAP values (positive class - class 1):")
-    shap_values_class1 = shap_values[1]  # Extract SHAP values for positive class
-    st.write("First 5 SHAP rows (class 1):")
-    st.write(pd.DataFrame(shap_values_class1[:5], columns=X_test.columns))
-else:
-    # For binary classification
-    st.write("SHAP values (binary classification):")
-    st.write("First 5 SHAP rows:")
-    st.write(pd.DataFrame(shap_values[:5], columns=X_test.columns))
+try:
+    if isinstance(shap_values, list) and len(shap_values) > 1:
+        # For multi-class classification: Display SHAP values for the positive class
+        st.write("SHAP values (positive class - class 1):")
+        shap_values_class1 = shap_values[1]  # Extract SHAP values for positive class
+        st.write("First 5 SHAP rows (class 1):")
+        st.write(pd.DataFrame(shap_values_class1[:5], columns=X_test.columns))
+    else:
+        # For binary classification
+        st.write("SHAP values (binary classification):")
+        st.write("First 5 SHAP rows:")
+        st.write(pd.DataFrame(shap_values[:5], columns=X_test.columns))
+except Exception as e:
+    st.error(f"Error displaying SHAP values: {e}")
 
 # Visualize SHAP values based on classification type
-if isinstance(shap_values, list) and len(shap_values) > 1:
-    # For multi-class classification
-    st.write("Visualizing SHAP values for the positive class (1)")
-    fig, ax = plt.subplots()
-    shap.summary_plot(shap_values[1], X_test, plot_type="bar", show=False)
-    st.pyplot(fig)
-elif isinstance(shap_values, np.ndarray):
-    # For binary classification
-    st.write("Visualizing SHAP values for binary classification")
-    fig, ax = plt.subplots()
-    shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
-    st.pyplot(fig)
-else:
-    st.error("Error in SHAP value shape. Ensure compatibility with the model and dataset.")
+try:
+    if isinstance(shap_values, list) and len(shap_values) > 1:
+        # For multi-class classification
+        st.write("Visualizing SHAP values for the positive class (1)")
+        fig, ax = plt.subplots()
+        shap.summary_plot(shap_values[1], X_test, plot_type="bar", show=False)
+        st.pyplot(fig)
+    elif isinstance(shap_values, np.ndarray):
+        # For binary classification
+        st.write("Visualizing SHAP values for binary classification")
+        fig, ax = plt.subplots()
+        shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
+        st.pyplot(fig)
+    else:
+        st.error("Error in SHAP value shape. Ensure compatibility with the model and dataset.")
+except Exception as e:
+    st.error(f"Error visualizing SHAP values: {e}")
 
 # Alternative Visualization: Beeswarm plot
 st.subheader("Alternative SHAP Visualization: Beeswarm Plot")
-fig, ax = plt.subplots()
-shap.summary_plot(shap_values[1] if isinstance(shap_values, list) else shap_values, X_test, show=False)
-st.pyplot(fig)
+try:
+    fig, ax = plt.subplots()
+    shap.summary_plot(shap_values[1] if isinstance(shap_values, list) else shap_values, X_test, show=False)
+    st.pyplot(fig)
+except Exception as e:
+    st.error(f"Error displaying beeswarm plot: {e}")
